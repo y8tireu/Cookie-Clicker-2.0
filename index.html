@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cookie Clicker Deluxe</title>
+  <!-- Google Font for a modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Global Reset & Base Styles */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: radial-gradient(circle at center, #141414, #000);
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    /* Header */
+    header {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.8);
+      padding: 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+      color: #4a90e2;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+    header button {
+      background: linear-gradient(45deg, #4a90e2, #357ABD);
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    header button:hover {
+      background: linear-gradient(45deg, #357ABD, #4a90e2);
+      transform: scale(1.05);
+    }
+    /* Game Container */
+    #game-container {
+      margin: 30px;
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+    }
+    #score {
+      font-size: 2em;
+      margin: 10px 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+    /* Clickable Cookie */
+    #cookie {
+      font-size: 8em;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      user-select: none;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+    }
+    #cookie:hover {
+      box-shadow: 0 0 30px rgba(74,144,226,0.8);
+    }
+    #cookie:active {
+      transform: scale(0.95) rotate(-5deg);
+    }
+    /* Store Panel */
+    #store {
+      background: rgba(20, 20, 20, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      margin: 20px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+      color: #eee;
+      border: 1px solid #444;
+      transition: transform 0.3s ease;
+    }
+    #store:hover {
+      transform: scale(1.01);
+    }
+    #store h2 {
+      margin-top: 0;
+      color: #4a90e2;
+      text-align: center;
+      font-size: 2em;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    .store-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px 0;
+      padding: 15px;
+      border-radius: 8px;
+      background: #333;
+      color: #eee;
+      flex-wrap: wrap;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .store-item:hover {
+      background: #3a3a3a;
+      transform: scale(1.02);
+    }
+    .store-item .item-info {
+      flex: 1;
+      margin-bottom: 10px;
+      font-size: 1em;
+    }
+    .store-item button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      background: linear-gradient(45deg, #4a90e2, #357ABD);
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin: 5px;
+    }
+    .store-item button:disabled {
+      background: #777;
+      cursor: not-allowed;
+    }
+    .store-item button:hover:not(:disabled) {
+      background: linear-gradient(45deg, #357ABD, #4a90e2);
+      transform: scale(1.05);
+    }
+    /* Achievement Modal */
+    #achievementModal {
+      display: none;
+      position: fixed;
+      z-index: 300;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.9);
+    }
+    #achievementModalContent {
+      background-color: #222;
+      margin: 5% auto;
+      padding: 30px;
+      border: 1px solid #444;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 10px;
+      color: #eee;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.9);
+      animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    #achievementModalContent h2 {
+      color: #4a90e2;
+      text-align: center;
+      margin-top: 0;
+      font-size: 2em;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    #achievementModalContent .achievement-item {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      background: #333;
+      border: 1px solid #444;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.3s ease;
+    }
+    #achievementModalContent .achievement-item.unlocked {
+      border-left: 5px solid #4a90e2;
+      background: #3a3a3a;
+    }
+    #achievementModalContent .achievement-item .lock {
+      display: block;
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 5px;
+    }
+    #achievementModalContent .achievement-item .achievement-text {
+      text-align: center;
+      font-size: 1em;
+    }
+    #achievementModalContent .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    #achievementModalContent .close:hover,
+    #achievementModalContent .close:focus {
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    /* Terminal Overlay */
+    #terminalOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 400;
+      color: #eee;
+    }
+    #terminalContainer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 600px;
+      background: #222;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.9);
+      animation: slideIn 0.5s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    #terminalContainer h2 {
+      margin-top: 0;
+      text-align: center;
+      font-size: 2em;
+      color: #4a90e2;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    #terminalHelpBtn {
+      background: linear-gradient(45deg, #4a90e2, #357ABD);
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      font-size: 0.9em;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    #terminalHelpBtn:hover {
+      background: linear-gradient(45deg, #357ABD, #4a90e2);
+      transform: scale(1.05);
+    }
+    #terminalOutput {
+      font-size: 0.9em;
+      margin-top: 10px;
+      height: 200px;
+      overflow-y: auto;
+      background: #333;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      border: 1px solid #444;
+    }
+    #terminalInput {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      margin-top: 10px;
+      background: #444;
+      color: #eee;
+    }
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 15px 25px;
+      border-radius: 5px;
+      display: none;
+      z-index: 200;
+      font-size: 1.1em;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.7);
+      animation: fadeInToast 0.5s ease;
+    }
+    @keyframes fadeInToast {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cookie Clicker Deluxe</h1>
+    <button id="achievementBtn">Achievements</button>
+  </header>
+
+  <div id="game-container">
+    <div id="score">Cookies: 0</div>
+    <div id="cookie">🍪</div>
+  </div>
+
+  <div id="store">
+    <h2>Store</h2>
+    <div id="store-items"></div>
+  </div>
+
+  <!-- Achievement Modal -->
+  <div id="achievementModal">
+    <div id="achievementModalContent">
+      <span class="close" id="closeModal">&times;</span>
+      <h2>Achievements</h2>
+      <div id="achievementList"></div>
+    </div>
+  </div>
+
+  <!-- Terminal Overlay (Secret Terminal) -->
+  <div id="terminalOverlay">
+    <div id="terminalContainer">
+      <h2>Secret Terminal</h2>
+      <button id="terminalHelpBtn">Help</button>
+      <div id="terminalOutput"></div>
+      <input type="text" id="terminalInput" placeholder="Type command here... (e.g., add cookies 100)" autofocus>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // ---------------- Game Variables ----------------
+    let cookies = 0;
+    let cookiesPerClick = 1;
+    let cookiesPerSecond = 0;
+    let totalClicks = 0;
+    let totalUpgrades = 0;
+
+    // ---------------- Store Items (with Upgrade Properties) ----------------
+    const storeItems = [
+      { id: "cursor", name: "Cursor", price: 15, type: "click", baseBonus: 1, owned: 0, upgradeLevel: 0, upgradeCost: 100 },
+      { id: "grandma", name: "Grandma", price: 100, type: "auto", baseBonus: 5, owned: 0, upgradeLevel: 0, upgradeCost: 500 },
+      { id: "factory", name: "Factory", price: 500, type: "click", baseBonus: 10, owned: 0, upgradeLevel: 0, upgradeCost: 2500 },
+      { id: "mine", name: "Mine", price: 2000, type: "auto", baseBonus: 50, owned: 0, upgradeLevel: 0, upgradeCost: 10000 },
+      { id: "bank", name: "Bank", price: 5000, type: "auto", baseBonus: 200, owned: 0, upgradeLevel: 0, upgradeCost: 25000 },
+      { id: "portal", name: "Portal", price: 20000, type: "auto", baseBonus: 1000, owned: 0, upgradeLevel: 0, upgradeCost: 100000 }
+    ];
+
+    // ---------------- Achievements ----------------
+    const achievements = [
+      { id: "firstClick", title: "First Click", description: "Click the cookie for the first time", condition: () => totalClicks >= 1, unlocked: false },
+      { id: "clickEnthusiast", title: "Click Enthusiast", description: "Click the cookie 100 times", condition: () => totalClicks >= 100, unlocked: false },
+      { id: "masterClicker", title: "Master Clicker", description: "Click the cookie 1000 times", condition: () => totalClicks >= 1000, unlocked: false },
+      { id: "cookieNovice", title: "Cookie Novice", description: "Accumulate 100 cookies", condition: () => cookies >= 100, unlocked: false },
+      { id: "cookieExpert", title: "Cookie Expert", description: "Accumulate 1,000 cookies", condition: () => cookies >= 1000, unlocked: false },
+      { id: "cookieMaster", title: "Cookie Master", description: "Accumulate 10,000 cookies", condition: () => cookies >= 10000, unlocked: false },
+      { id: "cookieTycoon", title: "Cookie Tycoon", description: "Accumulate 100,000 cookies", condition: () => cookies >= 100000, unlocked: false },
+      { id: "firstUpgrade", title: "First Upgrade", description: "Purchase your first upgrade", condition: () => totalUpgrades >= 1, unlocked: false },
+      { id: "upgradeCollector", title: "Upgrade Collector", description: "Purchase 10 upgrades", condition: () => totalUpgrades >= 10, unlocked: false },
+      { id: "autoAddict", title: "Auto Addict", description: "Reach 100 cookies per second", condition: () => cookiesPerSecond >= 100, unlocked: false },
+      { id: "cursorCollector", title: "Cursor Collector", description: "Own 10 Cursors", condition: () => { const item = storeItems.find(i => i.id === "cursor"); return item && item.owned >= 10; }, unlocked: false },
+      { id: "grandmaGuru", title: "Grandma Guru", description: "Own 5 Grandmas", condition: () => { const item = storeItems.find(i => i.id === "grandma"); return item && item.owned >= 5; }, unlocked: false },
+      { id: "factoryFrenzy", title: "Factory Frenzy", description: "Own 3 Factories", condition: () => { const item = storeItems.find(i => i.id === "factory"); return item && item.owned >= 3; }, unlocked: false },
+      { id: "upgrader", title: "Upgrader", description: "Upgrade any item at least once", condition: () => storeItems.some(item => item.upgradeLevel >= 1), unlocked: false },
+      { id: "itemMaster", title: "Item Master", description: "Achieve a total upgrade level of 5 across all items", condition: () => storeItems.reduce((sum, item) => sum + item.upgradeLevel, 0) >= 5, unlocked: false }
+    ];
+
+    // ---------------- DOM Elements ----------------
+    const scoreElement = document.getElementById('score');
+    const cookieElement = document.getElementById('cookie');
+    const storeItemsContainer = document.getElementById('store-items');
+    const toastElement = document.getElementById('toast');
+
+    // ---------------- Update Score & Check Achievements ----------------
+    function updateScore() {
+      scoreElement.textContent = 'Cookies: ' + Math.floor(cookies);
+      updateStoreButtons();
+      checkAchievements();
+    }
+
+    // ---------------- Recalculate Rates Based on Store Items ----------------
+    function recalcRates() {
+      cookiesPerClick = 1; // Base click value
+      cookiesPerSecond = 0;
+      storeItems.forEach(item => {
+        let effectiveBonus = item.baseBonus * (1 + 0.5 * item.upgradeLevel);
+        if (item.type === "click") {
+          cookiesPerClick += item.owned * effectiveBonus;
+        } else if (item.type === "auto") {
+          cookiesPerSecond += item.owned * effectiveBonus;
+        }
+      });
+    }
+
+    // ---------------- Enable/Disable Store Buttons ----------------
+    function updateStoreButtons() {
+      storeItems.forEach(item => {
+        const buyButton = document.getElementById('buy-' + item.id);
+        if (buyButton) { buyButton.disabled = cookies < item.price; }
+        const upgradeButton = document.getElementById('upgrade-' + item.id);
+        if (upgradeButton) {
+          upgradeButton.disabled = (item.owned === 0 || cookies < item.upgradeCost);
+        }
+      });
+    }
+
+    // ---------------- Cookie Click Handler ----------------
+    cookieElement.addEventListener('click', () => {
+      cookies += cookiesPerClick;
+      totalClicks++;
+      animateCookie();
+      updateScore();
+    });
+
+    // ---------------- Animate Cookie ----------------
+    function animateCookie() {
+      cookieElement.style.transform = 'scale(1.1)';
+      setTimeout(() => { cookieElement.style.transform = 'scale(1)'; }, 100);
+    }
+
+    // ---------------- Purchase a Store Item ----------------
+    function purchaseItem(itemId) {
+      const item = storeItems.find(i => i.id === itemId);
+      if (cookies >= item.price) {
+        cookies -= item.price;
+        item.owned++;
+        showToast("Purchased " + item.name + "!");
+        recalcRates();
+        updateScore();
+        renderStoreItems();
+      } else {
+        showToast("Not enough cookies for " + item.name);
+      }
+    }
+
+    // ---------------- Upgrade a Store Item ----------------
+    function upgradeItem(itemId) {
+      const item = storeItems.find(i => i.id === itemId);
+      if (item.owned > 0 && cookies >= item.upgradeCost) {
+        cookies -= item.upgradeCost;
+        item.upgradeLevel++;
+        totalUpgrades++;
+        showToast("Upgraded " + item.name + "!");
+        item.upgradeCost = Math.floor(item.upgradeCost * 2);
+        recalcRates();
+        updateScore();
+        renderStoreItems();
+      } else {
+        showToast("Not enough cookies to upgrade " + item.name);
+      }
+    }
+
+    // ---------------- Render Store Items ----------------
+    function renderStoreItems() {
+      storeItemsContainer.innerHTML = "";
+      storeItems.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'store-item';
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'item-info';
+        infoDiv.innerHTML = `<strong>${item.name}</strong><br>
+          Price: ${item.price} cookies<br>
+          Owned: ${item.owned}<br>
+          Upgrade Level: ${item.upgradeLevel} (Cost: ${item.upgradeCost} cookies)<br>
+          Effective Bonus: ${(item.baseBonus * (1 + 0.5 * item.upgradeLevel)).toFixed(2)}`;
+        const buttonsDiv = document.createElement('div');
+        const buyButton = document.createElement('button');
+        buyButton.textContent = "Buy";
+        buyButton.id = "buy-" + item.id;
+        buyButton.addEventListener('click', () => purchaseItem(item.id));
+        const upgradeButton = document.createElement('button');
+        upgradeButton.textContent = "Upgrade";
+        upgradeButton.id = "upgrade-" + item.id;
+        upgradeButton.addEventListener('click', () => upgradeItem(item.id));
+        buttonsDiv.appendChild(buyButton);
+        buttonsDiv.appendChild(upgradeButton);
+        itemDiv.appendChild(infoDiv);
+        itemDiv.appendChild(buttonsDiv);
+        storeItemsContainer.appendChild(itemDiv);
+      });
+    }
+
+    // ---------------- Check and Unlock Achievements ----------------
+    function checkAchievements() {
+      achievements.forEach(achievement => {
+        if (!achievement.unlocked && achievement.condition()) {
+          achievement.unlocked = true;
+          unlockAchievement(achievement);
+        }
+      });
+    }
+    function unlockAchievement(achievement) {
+      showToast("Achievement Unlocked: " + achievement.title);
+      updateAchievementModal();
+    }
+
+    // ---------------- Update Achievement Modal ----------------
+    function updateAchievementModal() {
+      const modalList = document.getElementById('achievementList');
+      modalList.innerHTML = "";
+      achievements.forEach(achievement => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'achievement-item';
+        if (achievement.unlocked) { itemDiv.classList.add('unlocked'); }
+        if (!achievement.unlocked) {
+          const lockDiv = document.createElement('div');
+          lockDiv.className = 'lock';
+          lockDiv.textContent = '🔒';
+          itemDiv.appendChild(lockDiv);
+        }
+        const textDiv = document.createElement('div');
+        textDiv.className = 'achievement-text';
+        textDiv.textContent = achievement.title + " - " + achievement.description;
+        itemDiv.appendChild(textDiv);
+        modalList.appendChild(itemDiv);
+      });
+    }
+
+    // ---------------- Toast Notification ----------------
+    function showToast(message) {
+      toastElement.textContent = message;
+      toastElement.style.display = 'block';
+      setTimeout(() => { toastElement.style.display = 'none'; }, 2000);
+    }
+
+    // ---------------- Secret Terminal Functions ----------------
+    function openTerminal() {
+      document.getElementById('terminalOverlay').style.display = 'block';
+      document.getElementById('terminalInput').focus();
+    }
+    function closeTerminal() {
+      document.getElementById('terminalOverlay').style.display = 'none';
+      document.getElementById('terminalInput').value = '';
+    }
+    function displayTerminalHelp() {
+      const helpText = 
+`Secret Terminal Help:
+- add cookies [amount] : Adds cookies.
+- add [item name] [amount] : Adds the specified number of items. Use quotes if needed (e.g., add "Grandma" 50).
+- help : Displays this help message.
+- exit : Closes the terminal.`;
+      appendToTerminalOutput(helpText);
+    }
+    function appendToTerminalOutput(text) {
+      const output = document.getElementById('terminalOutput');
+      output.textContent += text + "\n";
+      output.scrollTop = output.scrollHeight;
+    }
+    function processTerminalCommand(command) {
+      command = command.trim();
+      if (command.toLowerCase() === 'exit') {
+        closeTerminal();
+        return;
+      }
+      if (command.toLowerCase() === 'help') {
+        displayTerminalHelp();
+        return;
+      }
+      // Accept commands like:
+      // add cookies 100
+      // add factory 100
+      // add "Grandma" 50
+      let regex = /^add\s+(?:"([^"]+)"|(\S+))\s+(\d+)$/i;
+      let match = command.match(regex);
+      if (match) {
+        let target = match[1] ? match[1] : match[2];
+        let amount = parseInt(match[3]);
+        if (!isNaN(amount)) {
+          if (target.toLowerCase() === 'cookies') {
+            cookies += amount;
+            appendToTerminalOutput("Added " + amount + " cookies!");
+          } else {
+            let found = storeItems.find(item => item.name.toLowerCase() === target.toLowerCase());
+            if (found) {
+              found.owned += amount;
+              appendToTerminalOutput("Added " + amount + " " + found.name + "!");
+            } else {
+              appendToTerminalOutput("Item '" + target + "' not found.");
+            }
+          }
+          recalcRates();
+          updateScore();
+          renderStoreItems();
+        } else {
+          appendToTerminalOutput("Invalid amount.");
+        }
+      } else {
+        appendToTerminalOutput("Invalid command. Type 'help' for instructions.");
+      }
+    }
+    document.getElementById('terminalInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        processTerminalCommand(this.value);
+        this.value = '';
+      }
+    });
+    document.getElementById('terminalHelpBtn').addEventListener('click', () => {
+      displayTerminalHelp();
+    });
+    window.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        openTerminal();
+      }
+    });
+
+    // ---------------- Achievement Modal Toggle ----------------
+    document.getElementById('achievementBtn').addEventListener('click', () => {
+      document.getElementById('achievementModal').style.display = 'block';
+      updateAchievementModal();
+    });
+    document.getElementById('closeModal').addEventListener('click', () => {
+      document.getElementById('achievementModal').style.display = 'none';
+    });
+    window.addEventListener('click', (event) => {
+      const modal = document.getElementById('achievementModal');
+      if (event.target === modal) { modal.style.display = 'none'; }
+    });
+
+    // ---------------- Auto Cookie Generation ----------------
+    setInterval(() => {
+      cookies += cookiesPerSecond;
+      updateScore();
+    }, 1000);
+
+    // ---------------- Save/Load Game to/from Local Storage ----------------
+    const SAVE_KEY = "cookieClickerDeluxeSave";
+    function saveGame() {
+      const saveData = {
+        cookies,
+        totalClicks,
+        totalUpgrades,
+        storeItems: storeItems.map(item => ({
+          id: item.id,
+          owned: item.owned,
+          upgradeLevel: item.upgradeLevel,
+          upgradeCost: item.upgradeCost
+        })),
+        achievements: achievements.map(ach => ({
+          id: ach.id,
+          unlocked: ach.unlocked
+        }))
+      };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+    }
+    function loadGame() {
+      const data = localStorage.getItem(SAVE_KEY);
+      if (data) {
+        try {
+          const saveData = JSON.parse(data);
+          cookies = saveData.cookies || 0;
+          totalClicks = saveData.totalClicks || 0;
+          totalUpgrades = saveData.totalUpgrades || 0;
+          if (saveData.storeItems) {
+            saveData.storeItems.forEach(savedItem => {
+              const item = storeItems.find(i => i.id === savedItem.id);
+              if (item) {
+                item.owned = savedItem.owned;
+                item.upgradeLevel = savedItem.upgradeLevel;
+                item.upgradeCost = savedItem.upgradeCost;
+              }
+            });
+          }
+          if (saveData.achievements) {
+            saveData.achievements.forEach(savedAch => {
+              const ach = achievements.find(a => a.id === savedAch.id);
+              if (ach) {
+                ach.unlocked = savedAch.unlocked;
+              }
+            });
+          }
+        } catch (e) {
+          console.error("Failed to load save:", e);
+        }
+      }
+    }
+    window.addEventListener('beforeunload', saveGame);
+    setInterval(saveGame, 5000); // Auto-save every 5 seconds
+
+    // ---------------- Initial Setup ----------------
+    loadGame();
+    recalcRates();
+    renderStoreItems();
+    updateScore();
+    updateAchievementModal();
+  </script>
+</body>
+</html>
+
