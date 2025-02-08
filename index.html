@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cookie Clicker Deluxe</title>
+  <title>Cookie Clicker</title>
   <!-- Google Font for a modern look -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
@@ -15,9 +15,6 @@
       font-family: 'Montserrat', sans-serif;
       background: radial-gradient(circle at center, #141414, #000);
       color: #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       min-height: 100vh;
     }
     /* Header */
@@ -27,9 +24,7 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.8);
       padding: 20px;
       text-align: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: relative;
     }
     header h1 {
       margin: 0;
@@ -37,28 +32,70 @@
       color: #4a90e2;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
-    header button {
-      background: linear-gradient(45deg, #4a90e2, #357ABD);
-      border: none;
-      color: #fff;
-      padding: 10px 20px;
-      font-size: 1em;
-      border-radius: 5px;
+    /* Hamburger Menu */
+    #hamburgerMenu {
+      position: absolute;
+      top: 20px;
+      right: 20px;
       cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.3s ease, transform 0.2s ease;
+      z-index: 150;
     }
-    header button:hover {
-      background: linear-gradient(45deg, #357ABD, #4a90e2);
-      transform: scale(1.05);
+    #hamburgerMenu .bar {
+      width: 25px;
+      height: 3px;
+      background-color: #eee;
+      margin: 4px 0;
+      transition: 0.4s;
     }
-    /* Game Container */
-    #game-container {
-      margin: 30px;
-      text-align: center;
+    #hamburgerMenuContent {
+      display: none;
+      position: absolute;
+      top: 35px;
+      right: 0;
+      background: rgba(20,20,20,0.95);
+      border: 1px solid #444;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    #hamburgerMenuContent button {
+      background: none;
+      border: none;
+      color: #eee;
+      padding: 10px 20px;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
+    #hamburgerMenuContent button:hover {
+      background: #3a3a3a;
+    }
+    /* Main Content Layout */
+    #mainContent {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      gap: 20px;
       width: 90%;
-      max-width: 600px;
+      max-width: 1200px;
+      margin: 30px auto;
     }
+    /* Cookie Section (Left Side) */
+    #cookieSection {
+      flex: 1;
+      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: calc(100vh - 80px);
+    }
+    /* Store Section (Right Side) */
+    #storeSection {
+      flex: 1;
+      min-width: 300px;
+    }
+    /* Score Display */
     #score {
       font-size: 2em;
       margin: 10px 0;
@@ -66,26 +103,29 @@
     }
     /* Clickable Cookie */
     #cookie {
-      font-size: 8em;
+      font-size: 12em;
       cursor: pointer;
-      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      transition: box-shadow 0.2s ease;
       user-select: none;
       text-shadow: 0 2px 10px rgba(0,0,0,0.9);
     }
     #cookie:hover {
       box-shadow: 0 0 30px rgba(74,144,226,0.8);
     }
-    #cookie:active {
-      transform: scale(0.95) rotate(-5deg);
+    /* Cookie Pop Animation */
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .pop {
+      animation: pop 0.2s ease-out;
     }
     /* Store Panel */
     #store {
       background: rgba(20, 20, 20, 0.95);
       padding: 20px;
       border-radius: 10px;
-      width: 90%;
-      max-width: 600px;
-      margin: 20px 0;
       box-shadow: 0 4px 12px rgba(0,0,0,0.8);
       color: #eee;
       border: 1px solid #444;
@@ -217,7 +257,7 @@
       text-decoration: none;
       cursor: pointer;
     }
-    /* Terminal Overlay */
+    /* Terminal Overlay & Full-Screen Terminal */
     #terminalOverlay {
       display: none;
       position: fixed;
@@ -227,37 +267,49 @@
       height: 100%;
       background: rgba(0,0,0,0.95);
       z-index: 400;
-      color: #eee;
+      color: #00aaff;  /* Blue text */
+      font-family: monospace;
     }
     #terminalContainer {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 90%;
-      max-width: 600px;
-      background: #222;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.9);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;  /* Pure black background */
+      padding: 20px;
+      box-sizing: border-box;
+      overflow: auto;
       animation: slideIn 0.5s ease;
     }
     @keyframes slideIn {
-      from { opacity: 0; transform: translate(-50%, -60%); }
-      to { opacity: 1; transform: translate(-50%, -50%); }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     #terminalContainer h2 {
       margin-top: 0;
       text-align: center;
       font-size: 2em;
-      color: #4a90e2;
-      border-bottom: 1px solid #444;
+      color: #00aaff;
+      border-bottom: 1px solid #004466;
       padding-bottom: 10px;
     }
-    #terminalHelpBtn {
-      background: linear-gradient(45deg, #4a90e2, #357ABD);
-      border: none;
+    /* Close button for terminal */
+    #closeTerminal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #00aaff;
+    }
+    #closeTerminal:hover {
       color: #fff;
+    }
+    #terminalHelpBtn {
+      background: none;
+      border: 1px solid #00aaff;
+      color: #00aaff;
       padding: 8px 16px;
       font-size: 0.9em;
       border-radius: 5px;
@@ -266,29 +318,30 @@
       transition: background 0.3s ease, transform 0.2s ease;
     }
     #terminalHelpBtn:hover {
-      background: linear-gradient(45deg, #357ABD, #4a90e2);
+      background: #004466;
       transform: scale(1.05);
     }
     #terminalOutput {
       font-size: 0.9em;
       margin-top: 10px;
-      height: 200px;
+      height: 60%;
       overflow-y: auto;
-      background: #333;
+      background: #000;
       padding: 15px;
       border-radius: 5px;
       white-space: pre-wrap;
-      border: 1px solid #444;
+      border: 1px solid #004466;
+      color: #00aaff;
     }
     #terminalInput {
       width: 100%;
       padding: 10px;
       font-size: 1em;
-      border: none;
+      border: 1px solid #004466;
       border-radius: 5px;
       margin-top: 10px;
-      background: #444;
-      color: #eee;
+      background: #000;
+      color: #00aaff;
     }
     /* Toast Notification */
     #toast {
@@ -310,22 +363,98 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    /* Add Item Modal */
+    #addItemModal {
+      display: none;
+      position: fixed;
+      z-index: 500;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.9);
+    }
+    #addItemModalContent {
+      background-color: #222;
+      margin: 5% auto;
+      padding: 30px;
+      border: 1px solid #444;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+      color: #eee;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.9);
+    }
+    #addItemModalContent label {
+      display: block;
+      margin-top: 10px;
+    }
+    #addItemModalContent input,
+    #addItemModalContent select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #444;
+      background: #333;
+      color: #eee;
+    }
+    #addItemModalContent button {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      background: linear-gradient(45deg, #4a90e2, #357ABD);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    #addItemModalContent button:hover {
+      background: linear-gradient(45deg, #357ABD, #4a90e2);
+      transform: scale(1.05);
+    }
+    #closeAddItemModal {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #closeAddItemModal:hover {
+      color: #fff;
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Cookie Clicker Deluxe</h1>
-    <button id="achievementBtn">Achievements</button>
+    <h1>Cookie Clicker </h1>
+    <!-- Hamburger Menu with Achievements now included -->
+    <div id="hamburgerMenu">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div id="hamburgerMenuContent">
+        <button id="achievementHamburgerBtn">Achievements</button>
+        <button id="saveGameBtn">Save Game</button>
+        <button id="loadGameBtn">Load Game</button>
+        <button id="resetGameBtn">Reset Game</button>
+      </div>
+    </div>
   </header>
 
-  <div id="game-container">
-    <div id="score">Cookies: 0</div>
-    <div id="cookie">🍪</div>
-  </div>
-
-  <div id="store">
-    <h2>Store</h2>
-    <div id="store-items"></div>
+  <!-- Main Content: Left for Cookie, Right for Store -->
+  <div id="mainContent">
+    <div id="cookieSection">
+      <div id="score">Cookies: 0</div>
+      <div id="cookie">🍪</div>
+    </div>
+    <div id="storeSection">
+      <div id="store">
+        <h2>Store</h2>
+        <div id="store-items"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Achievement Modal -->
@@ -340,12 +469,30 @@
   <!-- Terminal Overlay (Secret Terminal) -->
   <div id="terminalOverlay">
     <div id="terminalContainer">
+      <!-- Close icon for terminal -->
+      <span id="closeTerminal">&times;</span>
       <h2>Secret Terminal</h2>
       <button id="terminalHelpBtn">Help</button>
       <div id="terminalOutput"></div>
       <input type="text" id="terminalInput" placeholder="Type command here... (e.g., add cookies 100)" autofocus>
     </div>
   </div>
+
+  <!-- Add Item Modal (triggered by sigmasigma command) -->
+  <div id="addItemModal">
+    <div id="addItemModalContent">
+      <span class="close" id="closeAddItemModal">&times;</span>
+      <h2>Add Items</h2>
+      <label for="itemSelect">Select Item:</label>
+      <select id="itemSelect"></select>
+      <label for="itemAmount">Amount:</label>
+      <input type="number" id="itemAmount" min="1" value="1">
+      <button id="confirmAddItem">Add Items</button>
+    </div>
+  </div>
+
+  <!-- Hidden file input for loading JSON saves -->
+  <input type="file" id="jsonLoadInput" style="display: none;" accept=".json">
 
   <div id="toast"></div>
 
@@ -357,14 +504,14 @@
     let totalClicks = 0;
     let totalUpgrades = 0;
 
-    // ---------------- Store Items (with Upgrade Properties) ----------------
+    // ---------------- Store Items ----------------
     const storeItems = [
-      { id: "cursor", name: "Cursor", price: 15, type: "click", baseBonus: 1, owned: 0, upgradeLevel: 0, upgradeCost: 100 },
-      { id: "grandma", name: "Grandma", price: 100, type: "auto", baseBonus: 5, owned: 0, upgradeLevel: 0, upgradeCost: 500 },
-      { id: "factory", name: "Factory", price: 500, type: "click", baseBonus: 10, owned: 0, upgradeLevel: 0, upgradeCost: 2500 },
-      { id: "mine", name: "Mine", price: 2000, type: "auto", baseBonus: 50, owned: 0, upgradeLevel: 0, upgradeCost: 10000 },
-      { id: "bank", name: "Bank", price: 5000, type: "auto", baseBonus: 200, owned: 0, upgradeLevel: 0, upgradeCost: 25000 },
-      { id: "portal", name: "Portal", price: 20000, type: "auto", baseBonus: 1000, owned: 0, upgradeLevel: 0, upgradeCost: 100000 }
+      { id: "cursor", name: "Cursor", price: 15, type: "click", baseBonus: 1, owned: 0, upgradeLevel: 0, upgradeCost: 100, originalUpgradeCost: 100 },
+      { id: "grandma", name: "Grandma", price: 100, type: "auto", baseBonus: 5, owned: 0, upgradeLevel: 0, upgradeCost: 500, originalUpgradeCost: 500 },
+      { id: "factory", name: "Factory", price: 500, type: "click", baseBonus: 10, owned: 0, upgradeLevel: 0, upgradeCost: 2500, originalUpgradeCost: 2500 },
+      { id: "mine", name: "Mine", price: 2000, type: "auto", baseBonus: 50, owned: 0, upgradeLevel: 0, upgradeCost: 10000, originalUpgradeCost: 10000 },
+      { id: "bank", name: "Bank", price: 5000, type: "auto", baseBonus: 200, owned: 0, upgradeLevel: 0, upgradeCost: 25000, originalUpgradeCost: 25000 },
+      { id: "portal", name: "Portal", price: 20000, type: "auto", baseBonus: 1000, owned: 0, upgradeLevel: 0, upgradeCost: 100000, originalUpgradeCost: 100000 }
     ];
 
     // ---------------- Achievements ----------------
@@ -433,10 +580,12 @@
       updateScore();
     });
 
-    // ---------------- Animate Cookie ----------------
+    // ---------------- Animate Cookie (Improved Pop Animation) ----------------
     function animateCookie() {
-      cookieElement.style.transform = 'scale(1.1)';
-      setTimeout(() => { cookieElement.style.transform = 'scale(1)'; }, 100);
+      cookieElement.classList.add('pop');
+      setTimeout(() => {
+        cookieElement.classList.remove('pop');
+      }, 200);
     }
 
     // ---------------- Purchase a Store Item ----------------
@@ -544,6 +693,15 @@
       setTimeout(() => { toastElement.style.display = 'none'; }, 2000);
     }
 
+    // ---------------- Achievement Modal Event ----------------
+    document.getElementById('closeModal').addEventListener('click', () => {
+      document.getElementById('achievementModal').style.display = 'none';
+    });
+    document.getElementById('achievementHamburgerBtn').addEventListener('click', () => {
+      document.getElementById('achievementModal').style.display = 'block';
+      document.getElementById('hamburgerMenuContent').style.display = 'none';
+    });
+
     // ---------------- Secret Terminal Functions ----------------
     function openTerminal() {
       document.getElementById('terminalOverlay').style.display = 'block';
@@ -556,9 +714,15 @@
     function displayTerminalHelp() {
       const helpText = 
 `Secret Terminal Help:
-- add cookies [amount] : Adds cookies.
-- add [item name] [amount] : Adds the specified number of items. Use quotes if needed (e.g., add "Grandma" 50).
 - help : Displays this help message.
+- clear : Clears the terminal output.
+- stats : Shows current game statistics.
+- set cookies [amount] : Sets your cookies count.
+- set cps [amount] : Sets cookies per second.
+- reset : Resets your game.
+- add cookies [amount] : Adds cookies.
+- add [item name] [amount] : Adds items (use quotes if needed).
+- sigmasigma : Opens the Add Items GUI.
 - exit : Closes the terminal.`;
       appendToTerminalOutput(helpText);
     }
@@ -569,18 +733,83 @@
     }
     function processTerminalCommand(command) {
       command = command.trim();
+      // Exit command
       if (command.toLowerCase() === 'exit') {
         closeTerminal();
         return;
       }
+      // Help command
       if (command.toLowerCase() === 'help') {
         displayTerminalHelp();
         return;
       }
-      // Accept commands like:
-      // add cookies 100
-      // add factory 100
-      // add "Grandma" 50
+      // Clear command
+      if (command.toLowerCase() === 'clear') {
+        document.getElementById('terminalOutput').textContent = "";
+        return;
+      }
+      // Stats command
+      if (command.toLowerCase() === 'stats') {
+        let stats = "Cookies: " + Math.floor(cookies) +
+          "\nCookies Per Click: " + cookiesPerClick +
+          "\nCookies Per Second: " + cookiesPerSecond +
+          "\nTotal Clicks: " + totalClicks;
+        appendToTerminalOutput(stats);
+        return;
+      }
+      // Set cookies command
+      if (command.toLowerCase().startsWith('set cookies ')) {
+        let parts = command.split(" ");
+        let amount = parseFloat(parts[2]);
+        if (!isNaN(amount)) {
+          cookies = amount;
+          appendToTerminalOutput("Cookies set to " + amount);
+          updateScore();
+        } else {
+          appendToTerminalOutput("Invalid amount.");
+        }
+        return;
+      }
+      // Set cps command
+      if (command.toLowerCase().startsWith('set cps ')) {
+        let parts = command.split(" ");
+        let amount = parseFloat(parts[2]);
+        if (!isNaN(amount)) {
+          cookiesPerSecond = amount;
+          appendToTerminalOutput("Cookies per second set to " + amount);
+          updateScore();
+        } else {
+          appendToTerminalOutput("Invalid amount.");
+        }
+        return;
+      }
+      // Reset command
+      if (command.toLowerCase() === 'reset') {
+        cookies = 0;
+        totalClicks = 0;
+        totalUpgrades = 0;
+        storeItems.forEach(item => {
+          item.owned = 0;
+          item.upgradeLevel = 0;
+          item.upgradeCost = item.originalUpgradeCost;
+        });
+        achievements.forEach(ach => {
+          ach.unlocked = false;
+        });
+        recalcRates();
+        updateScore();
+        renderStoreItems();
+        updateAchievementModal();
+        appendToTerminalOutput("Game has been reset.");
+        return;
+      }
+      // Sigmasigma command to open Add Items GUI
+      if (command.toLowerCase() === 'sigmasigma') {
+        openAddItemModal();
+        appendToTerminalOutput("Opening Add Items GUI.");
+        return;
+      }
+      // Process add commands
       let regex = /^add\s+(?:"([^"]+)"|(\S+))\s+(\d+)$/i;
       let match = command.match(regex);
       if (match) {
@@ -618,34 +847,165 @@
     document.getElementById('terminalHelpBtn').addEventListener('click', () => {
       displayTerminalHelp();
     });
+    // Allow opening terminal via Ctrl+Alt+S
     window.addEventListener('keydown', function(e) {
       if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         openTerminal();
       }
     });
+    // Close terminal when the X is clicked
+    document.getElementById('closeTerminal').addEventListener('click', closeTerminal);
 
-    // ---------------- Achievement Modal Toggle ----------------
-    document.getElementById('achievementBtn').addEventListener('click', () => {
-      document.getElementById('achievementModal').style.display = 'block';
-      updateAchievementModal();
+    // ---------------- Hamburger Menu Functions ----------------
+    document.getElementById('hamburgerMenu').addEventListener('click', function(e) {
+      const menuContent = document.getElementById('hamburgerMenuContent');
+      menuContent.style.display = (menuContent.style.display === 'block') ? 'none' : 'block';
+      e.stopPropagation();
     });
-    document.getElementById('closeModal').addEventListener('click', () => {
-      document.getElementById('achievementModal').style.display = 'none';
+    document.addEventListener('click', function() {
+      document.getElementById('hamburgerMenuContent').style.display = 'none';
     });
-    window.addEventListener('click', (event) => {
-      const modal = document.getElementById('achievementModal');
-      if (event.target === modal) { modal.style.display = 'none'; }
+    document.getElementById('saveGameBtn').addEventListener('click', function() {
+      exportGameJSON();
+    });
+    document.getElementById('loadGameBtn').addEventListener('click', function() {
+      triggerLoadSave();
+    });
+    document.getElementById('resetGameBtn').addEventListener('click', function() {
+      if (confirm("Are you sure you want to reset your game? This will erase all your progress.")) {
+        cookies = 0;
+        totalClicks = 0;
+        totalUpgrades = 0;
+        storeItems.forEach(item => {
+          item.owned = 0;
+          item.upgradeLevel = 0;
+          item.upgradeCost = item.originalUpgradeCost;
+        });
+        achievements.forEach(ach => {
+          ach.unlocked = false;
+        });
+        recalcRates();
+        updateScore();
+        renderStoreItems();
+        updateAchievementModal();
+        localStorage.removeItem("cookieClickerSave");
+        showToast("Game reset.");
+      }
     });
 
-    // ---------------- Auto Cookie Generation ----------------
-    setInterval(() => {
-      cookies += cookiesPerSecond;
+    // ---------------- Add Item Modal Functions ----------------
+    function openAddItemModal() {
+      const select = document.getElementById('itemSelect');
+      select.innerHTML = "";
+      storeItems.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = item.name;
+        select.appendChild(option);
+      });
+      document.getElementById('addItemModal').style.display = 'block';
+    }
+    function closeAddItemModal() {
+      document.getElementById('addItemModal').style.display = 'none';
+    }
+    document.getElementById('closeAddItemModal').addEventListener('click', closeAddItemModal);
+    document.getElementById('confirmAddItem').addEventListener('click', function() {
+      const itemId = document.getElementById('itemSelect').value;
+      const amount = parseInt(document.getElementById('itemAmount').value);
+      if (!isNaN(amount) && amount > 0) {
+        const item = storeItems.find(i => i.id === itemId);
+        if (item) {
+          item.owned += amount;
+          showToast("Added " + amount + " " + item.name + "(s)!");
+          recalcRates();
+          updateScore();
+          renderStoreItems();
+        }
+      }
+      closeAddItemModal();
+    });
+
+    // ---------------- JSON Save Export/Import Functions ----------------
+    function exportGameJSON() {
+      let customNote = prompt("Enter a custom note for your save file (optional):", "");
+      const saveData = {
+        cookies,
+        totalClicks,
+        totalUpgrades,
+        storeItems: storeItems.map(item => ({
+          id: item.id,
+          owned: item.owned,
+          upgradeLevel: item.upgradeLevel,
+          upgradeCost: item.upgradeCost
+        })),
+        achievements: achievements.map(ach => ({
+          id: ach.id,
+          unlocked: ach.unlocked
+        })),
+        customNote: customNote || ""
+      };
+      const jsonStr = JSON.stringify(saveData, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      a.href = url;
+      a.download = "CookieClicker_Save_" + timestamp + ".json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Game saved as JSON file.");
+    }
+    function triggerLoadSave() {
+      const input = document.getElementById('jsonLoadInput');
+      input.click();
+      showToast("Select a JSON file to load.");
+    }
+    document.getElementById('jsonLoadInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const jsonData = JSON.parse(e.target.result);
+          loadGameFromJSON(jsonData);
+          showToast("Game loaded from JSON file.");
+        } catch (err) {
+          showToast("Failed to load JSON file: " + err.message);
+        }
+      }
+      reader.readAsText(file);
+    });
+    function loadGameFromJSON(saveData) {
+      cookies = saveData.cookies || 0;
+      totalClicks = saveData.totalClicks || 0;
+      totalUpgrades = saveData.totalUpgrades || 0;
+      if (saveData.storeItems) {
+        saveData.storeItems.forEach(savedItem => {
+          const item = storeItems.find(i => i.id === savedItem.id);
+          if (item) {
+            item.owned = savedItem.owned;
+            item.upgradeLevel = savedItem.upgradeLevel;
+            item.upgradeCost = savedItem.upgradeCost;
+          }
+        });
+      }
+      if (saveData.achievements) {
+        saveData.achievements.forEach(savedAch => {
+          const ach = achievements.find(a => a.id === savedAch.id);
+          if (ach) {
+            ach.unlocked = savedAch.unlocked;
+          }
+        });
+      }
+      recalcRates();
       updateScore();
-    }, 1000);
+      renderStoreItems();
+      updateAchievementModal();
+    }
 
     // ---------------- Save/Load Game to/from Local Storage ----------------
-    const SAVE_KEY = "cookieClickerDeluxeSave";
+    const SAVE_KEY = "cookieClickerSave";
     function saveGame() {
       const saveData = {
         cookies,
@@ -696,7 +1056,13 @@
       }
     }
     window.addEventListener('beforeunload', saveGame);
-    setInterval(saveGame, 5000); // Auto-save every 5 seconds
+    setInterval(saveGame, 5000);
+
+    // ---------------- Auto-Production Interval ----------------
+    setInterval(() => {
+      cookies += cookiesPerSecond;
+      updateScore();
+    }, 1000);
 
     // ---------------- Initial Setup ----------------
     loadGame();
@@ -707,4 +1073,3 @@
   </script>
 </body>
 </html>
-
